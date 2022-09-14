@@ -1,0 +1,17 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #2d3436;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+}
+
+.logo a {
+    color: #eee;
+    text-decoration: none;
+}
+
+form .textField { 
+    margin-bottom: 10px;
+    width: 100%;
+}
