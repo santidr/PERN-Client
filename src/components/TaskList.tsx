@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Card, CardContent, Typography, Button } from '@mui/material'
 import { Task } from '../interfaces/Task'
+import { useNavigate } from 'react-router-dom'
 
 export const TaskList = () => {
+
+  const navigate = useNavigate()
 
   const [taskList, setTaskList] = useState<Task[]>()
 
@@ -15,12 +18,9 @@ export const TaskList = () => {
 
   const handleDelete = async (id: number): Promise<void> => {
     try {
-      const res = await fetch(`http://localhost:3000/api/tasks/delete/${id}`, { 
+      await fetch(`http://localhost:3000/api/tasks/delete/${id}`, { 
         method: "DELETE" 
       })
-      const data = await res.json()
-
-      console.log(data)
       setTaskList(taskList?.filter(task => task.id !== id))
 
     } catch (error) {
@@ -55,7 +55,7 @@ export const TaskList = () => {
                   style={{ marginRight: 10 }}
                   variant="contained"
                   color="inherit"
-                  onClick={() => console.log('Edit')}
+                  onClick={() => navigate(`/${task.id}/edit`) }
                 >
                   EDIT
                 </Button>

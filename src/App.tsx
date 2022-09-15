@@ -11,8 +11,9 @@ export const App = () => {
         <Navbar />
         <Container>
           <Routes>
-            <Route path='/' element={<TaskList />} />
-            <Route path='/new' element={<TaskForm />} />
+            <Route path='/' element={ <TaskList />} />
+            <Route path='/new' element={ <TaskForm />} />
+            <Route path='/:id/edit' element={ <TaskForm />} />
           </Routes>
         </Container>
       </BrowserRouter>

@@ -1,8 +1,8 @@
 import { Button, Card, CardContent, CircularProgress, Grid, Typography } from '@mui/material'
 import TextField from '@mui/material/TextField'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Task } from '../interfaces/Task'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { NewTask, Task } from '../interfaces/Task'
 
 type InputChange = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 type FormEvent = React.FormEvent<HTMLFormElement>
@@ -10,30 +10,38 @@ type FormEvent = React.FormEvent<HTMLFormElement>
 export const TaskForm = () => {
 
   const navigate = useNavigate()
+  const params = useParams()
 
-  const [task, setTask] = useState<Task>({
+  const [task, setTask] = useState<NewTask>({
     title: '',
     description: ''
   })
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [editing, setEditing] = useState<boolean>(false)
 
   const handleInputChange = ({ target }: InputChange): void => {
-    setTask({ ...task, [ target.name ]: target.value })
+    setTask({ ...task, [target.name]: target.value })
   }
 
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault()
     setLoading(true)
 
-    const res = await fetch('http://localhost:3000/api/tasks/new', {
-      method: 'POST',
-      body: JSON.stringify(task),
-      headers: { 'Content-Type': 'application/json' }
-    })
-
-    const data = await res.json()
-    console.log(data)
+    if (editing) {
+      await fetch(`http://localhost:3000/api/tasks/edit/${params.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(task),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      
+    } else {
+      const res = await fetch('http://localhost:3000/api/tasks/new', {
+        method: 'POST',
+        body: JSON.stringify(task),
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
 
     setLoading(false)
     navigate('/')
@@ -43,8 +51,23 @@ export const TaskForm = () => {
     return !task.title || !task.description
   }
 
+  const loadTaskEdit = async (id: string): Promise<void> => {
+    const res = await fetch(`http://localhost:3000/api/tasks/${id}`)
+    const data = await res.json()
+
+    setTask(data.result)
+  }
+
+  useEffect(() => {
+    if (params.id) {
+      loadTaskEdit(params.id)
+      setEditing(true)
+    }
+
+  }, [params.id])
+
   return (
-    <Grid 
+    <Grid
       container
       direction="column"
       justifyContent="center"
@@ -58,20 +81,20 @@ export const TaskForm = () => {
           }}
         >
           <Typography variant="h6" textAlign="center" color="white">
-            New task
+            { editing ? 'Edit task': 'New task' }
           </Typography>
           <CardContent>
-            <form onSubmit={ handleSubmit }>
+            <form onSubmit={handleSubmit}>
               <TextField
                 className="textField"
                 label="Title"
                 variant="filled"
                 name="title"
-                value={ task.title }
-                onChange={ handleInputChange }
+                value={task.title}
+                onChange={handleInputChange}
 
-                inputProps={{ style: { color: "#eee"}}}
-                InputLabelProps={{ style: { color: '#aaa' }}}
+                inputProps={{ style: { color: "#eee" } }}
+                InputLabelProps={{ style: { color: '#aaa' } }}
               />
 
               <TextField
@@ -81,20 +104,21 @@ export const TaskForm = () => {
                 multiline
                 rows={4}
                 name="description"
-                value={ task.description }
-                onChange={ handleInputChange }
+                value={task.description}
+                onChange={handleInputChange}
 
-                inputProps={{ style: { color: "#eee"}}}
-                InputLabelProps={{ style: { color: '#aaa' }}}
+                inputProps={{ style: { color: "#eee" } }}
+                InputLabelProps={{ style: { color: '#aaa' } }}
               />
 
-              <Button 
+              <Button
+                color={ editing ? 'success' : 'primary' }
                 variant="contained"
-                sx={{ mt: 2 }} 
+                sx={{ mt: 2 }}
                 type="submit"
-                disabled={ emptyTask() }
+                disabled={emptyTask()}
               >
-                { loading ? <CircularProgress color='inherit' size={24} /> : 'ADD TASK' }
+                {loading ? <CircularProgress color='inherit' size={24} /> : 'SAVE'}
               </Button>
             </form>
           </CardContent>
