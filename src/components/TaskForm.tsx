@@ -2,6 +2,7 @@ import { Button, Card, CardContent, CircularProgress, Grid, Typography } from '@
 import TextField from '@mui/material/TextField'
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { editTask, getTask, newTask } from '../api/api'
 import { NewTask, Task } from '../interfaces/Task'
 
 type InputChange = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -29,14 +30,14 @@ export const TaskForm = () => {
     setLoading(true)
 
     if (editing) {
-      await fetch(`http://localhost:3000/api/tasks/edit/${params.id}`, {
+      await fetch(editTask(params.id), {
         method: 'PUT',
         body: JSON.stringify(task),
         headers: { 'Content-Type': 'application/json' }
       })
       
     } else {
-      const res = await fetch('http://localhost:3000/api/tasks/new', {
+      const res = await fetch(newTask(), {
         method: 'POST',
         body: JSON.stringify(task),
         headers: { 'Content-Type': 'application/json' }
@@ -52,7 +53,7 @@ export const TaskForm = () => {
   }
 
   const loadTaskEdit = async (id: string): Promise<void> => {
-    const res = await fetch(`http://localhost:3000/api/tasks/${id}`)
+    const res = await fetch(getTask(id))
     const data = await res.json()
 
     setTask(data.result)
